@@ -27,41 +27,49 @@ namespace IrisAPI
 
             app.UseAuthorization();
 
-            app.MapGet("/iris", (float sepalLength, float sepalWidth, float petalLength, float petalWidth) =>
+            app.MapPost("/iris", (IrisInput input) =>
             {
-                var sampleData = new MLIrisModel.ModelInput()
+                try
                 {
-                    Sepal_Length = sepalLength,
-                    Sepal_Width = sepalWidth,
-                    Petal_Length = petalLength,
-                    Petal_Width = petalWidth,
-                };
+                    var sampleData = new MLIrisModel.ModelInput()
+                    {
+                        Sepal_Length = input.SepalLength,
+                        Sepal_Width = input.SepalWidth,
+                        Petal_Length = input.PetalLength,
+                        Petal_Width = input.PetalWidth,
+                    };
 
-                var result = MLIrisModel.Predict(sampleData);
+                    var result = MLIrisModel.Predict(sampleData);
 
-                var species = result.PredictedLabel.Replace(" ", "").ToLower().Replace("-", ""); // make filename safe
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "img", $"{species}.jpeg");
+                    var species = result.PredictedLabel.Replace(" ", "").ToLower().Replace("-", "");
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "img", $"{species}.jpeg");
 
-                string? base64Image = null;
-                if (File.Exists(filePath))
-                {
-                    var bytes = File.ReadAllBytes(filePath);
-                    base64Image = $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
+                    string? base64Image = null;
+                    if (File.Exists(filePath))
+                    {
+                        var bytes = File.ReadAllBytes(filePath);
+                        base64Image = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
+                    }
+
+                    return Results.Json(new
+                    {
+                        SepalLength = input.SepalLength,
+                        SepalWidth = input.SepalWidth,
+                        PetalLength = input.PetalLength,
+                        PetalWidth = input.PetalWidth,
+                        PredictedSpecies = result.PredictedLabel,
+                        positiveProbability = (result.Score.Max() * 100).ToString("0.00") + "%",
+                        negativeProbability = (result.Score.Min() * 100).ToString("0.00") + "%",
+                        ImageBase64 = base64Image
+                    });
                 }
-
-                return Results.Json(new
+                catch (Exception ex)
                 {
-                    SepalLength = sepalLength,
-                    SepalWidth = sepalWidth,
-                    PetalLength = petalLength,
-                    PetalWidth = petalWidth,
-                    PredictedSpecies = result.PredictedLabel,
-                    positiveProbability = (result.Score.Max() * 100).ToString("0.00") + "%",
-                    negativeProbability = (result.Score.Min() * 100).ToString("0.00") + "%",
-                    ImageBase64 = base64Image
-                });
+                    Console.WriteLine(ex.ToString());
+                    return Results.Problem(detail: ex.Message, statusCode: 500);
+                }
             })
-            .WithName("GetIris")
+            .WithName("PostIris")
             .WithOpenApi();
 
             app.Run();

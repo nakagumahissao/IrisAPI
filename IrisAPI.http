@@ -1,0 +1,6 @@
+@IrisAPI_HostAddress = http://localhost:5214
+
+GET {{IrisAPI_HostAddress}}/iris/
+Accept: application/json
+
+###

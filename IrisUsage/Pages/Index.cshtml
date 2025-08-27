@@ -1,0 +1,54 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Iris Usage Application</h1>
+    
+</div>
+
+<form method="post" asp-page-handler="Submit">
+    <div class="form-group">
+        <label>Sepal Length:</label>
+        <input type="text" class="form-control" name="SepalLength" required />
+    </div>
+    <div class="form-group" style="margin-top: 8px">
+        <label>Sepal Width:</label>
+        <input type="text" class="form-control" name="SepalWidth" required />
+    </div>
+    <div class="form-group" style="margin-top: 8px">
+        <label>Petal Length:</label>
+        <input type="text" class="form-control" name="PetalLength" required />
+    </div>
+    <div class="form-group" style="margin-top: 8px">
+        <label>Petal Width:</label>
+        <input type="text" class="form-control" name="PetalWidth" required />
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top: 8px">Submit</button>
+</form>
+
+@if (Model.Prediction != null)
+{
+    <div class="card mt-3 p-3">
+        <h2>Prediction Result</h2>
+        <p><strong>Species:</strong><span style="color: navy;"> @Model.Prediction.PredictedSpecies</span></p>
+        <p><strong>Positive Probability:</strong> @Model.Prediction.PositiveProbability</p>
+        <p><strong>Negative Probability:</strong> @Model.Prediction.NegativeProbability</p>
+
+        <h5>Inputs</h5>
+        <ul>
+            <li>Sepal Length: @Model.Prediction.SepalLength cm</li>
+            <li>Sepal Width: @Model.Prediction.SepalWidth cm</li>
+            <li>Petal Length: @Model.Prediction.PetalLength cm</li>
+            <li>Petal Width: @Model.Prediction.PetalWidth cm</li>
+        </ul>
+
+        <h5>Sample Image</h5>
+        @if (!string.IsNullOrEmpty(Model.Prediction?.ImageBase64))
+        {
+            <img src="@Html.Raw(Model.Prediction.ImageBase64)" alt="Iris Prediction Image" />
+        }
+    </div>
+}

@@ -56,6 +56,8 @@ namespace IrisAPI
                     PetalLength = petalLength,
                     PetalWidth = petalWidth,
                     PredictedSpecies = result.PredictedLabel,
+                    positiveProbability = (result.Score.Max() * 100).ToString("0.00") + "%",
+                    negativeProbability = (result.Score.Min() * 100).ToString("0.00") + "%",
                     ImageBase64 = base64Image
                 });
             })
